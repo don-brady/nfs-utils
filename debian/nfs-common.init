@@ -1,0 +1,279 @@
+#!/bin/sh
+#
+# nfs-common    This shell script takes care of starting and stopping
+#               common daemons required for NFS clients and servers.
+#
+# chkconfig: 345 20 80
+# description: NFS is a popular protocol for file sharing across \
+#	       TCP/IP networks. This service provides NFS file \
+#	       locking functionality.
+#
+
+# What is this?
+DESC="NFS common utilities"
+
+# Read config
+DEFAULTFILE=/etc/default/nfs-common
+PREFIX=
+NEED_LOCKD=
+NEED_IDMAPD=
+IDMAPD_PIDFILE=/var/run/rpc.idmapd.pid
+NEED_GSSD=
+GSSD_PIDFILE=/var/run/rpc.gssd.pid
+PIPEFS_MOUNTPOINT=/var/lib/nfs/rpc_pipefs
+RPCGSSDOPTS=
+if [ -f $DEFAULTFILE ]; then
+    . $DEFAULTFILE
+fi
+
+. /lib/lsb/init-functions
+
+# Determine whether lockd daemon is required.
+case "$NEED_LOCKD" in
+yes|no)	;;
+*)  case `uname -r` in
+    '' | [01].* | 2.[0123].* )
+	# Older kernels may or may not need a lockd daemon.
+	# We must assume they do, unless we can prove otherwise.
+	# (A false positive here results only in a harmless message.)
+	NEED_LOCKD=yes
+	if test -f /proc/ksyms
+	then
+	    grep -q lockdctl /proc/ksyms || NEED_LOCKD=no
+	fi
+	;;
+
+    *)  # Modern kernels (>= 2.4) start a lockd thread automatically.
+	NEED_LOCKD=no
+	;;
+    esac
+    ;;
+esac
+
+#
+# Parse the fstab file, and determine whether we need idmapd and gssd. (The
+# /etc/defaults settings, if any, will override our autodetection.) This code
+# is partially adapted from the mountnfs.sh script in the sysvinit package.
+#
+AUTO_NEED_IDMAPD=no
+AUTO_NEED_GSSD=no
+
+exec 9<&0 </etc/fstab
+
+while read DEV MTPT FSTYPE OPTS REST
+do
+    if [ "$FSTYPE" = "nfs4" ]; then
+        AUTO_NEED_IDMAPD=yes
+    fi
+    case "$OPTS" in
+        sec=krb5|*,sec=krb5|sec=krb5,*|*,sec=krb5i,*|sec=krb5i|*,sec=krb5i|sec=krb5i,*|*,sec=krb5i,*|sec=krb5p|*,sec=krb5p|sec=krb5p,*|*,sec=krb5p,*)
+	    AUTO_NEED_GSSD=yes
+	;;
+    esac
+done
+
+exec 0<&9 9<&-
+
+case "$NEED_IDMAPD" in
+    yes|no)	
+        ;;
+    *)
+        NEED_IDMAPD=$AUTO_NEED_IDMAPD
+	;;
+esac
+
+case "$NEED_GSSD" in
+    yes|no)	
+        ;;
+    *)
+        NEED_GSSD=$AUTO_NEED_GSSD
+	;;
+esac
+
+# Exit if required binaries are missing.
+[ -x $PREFIX/sbin/rpc.statd ] || exit 0
+[ -x $PREFIX/sbin/rpc.lockd ] || [ "$NEED_LOCKD"  = no ] || exit 0
+[ -x /usr/sbin/rpc.idmapd   ] || [ "$NEED_IDMAPD" = no ] || exit 0
+[ -x /usr/sbin/rpc.gssd     ] || [ "$NEED_GSSD"   = no ] || exit 0
+
+do_modprobe() {
+    modprobe -q "$1" || true
+}
+
+do_mount() {
+    if ! grep -E -qs "$1\$" /proc/filesystems
+    then
+	return 1
+    fi
+    if ! mountpoint -q "$2"
+    then
+	mount -t "$1" "$1" "$2"
+	return
+    fi
+    return 0
+}
+
+do_umount() {
+    if mountpoint -q "$1"
+    then
+	umount "$1"
+    fi
+    return 0
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	log_daemon_msg "Starting $DESC"
+
+	log_progress_msg "statd"
+	start-stop-daemon --start --oknodo --quiet \
+	    --exec $PREFIX/sbin/rpc.statd -- $STATDOPTS
+	if [ $? != 0 ]; then
+	    log_end_msg $?
+	    exit $?
+	fi
+
+	if [ "$NEED_LOCKD" = yes ]
+	then
+	    log_progress_msg "lockd"
+	    start-stop-daemon --start --oknodo --quiet \
+		--exec $PREFIX/sbin/rpc.lockd
+	    if [ $? != 0 ]; then
+	        log_end_msg $?
+	        exit $?
+            fi
+	fi
+	if [ "$NEED_IDMAPD" = yes ] || [ "$NEED_GSSD" = yes ]
+	then
+	    do_modprobe nfs
+	    do_modprobe nfs4
+	    if do_mount rpc_pipefs $PIPEFS_MOUNTPOINT
+	    then
+	    	if [ "$NEED_IDMAPD" = yes ]
+		then
+	            log_progress_msg "idmapd"
+		    start-stop-daemon --start --oknodo --quiet \
+			    --make-pidfile --pidfile $IDMAPD_PIDFILE \
+			    --exec /usr/sbin/rpc.idmapd
+	            if [ $? != 0 ]; then
+        	        log_end_msg $?
+        	        exit $?
+                    fi
+		fi
+		if [ "$NEED_GSSD" = yes ]
+		then
+		    do_modprobe rpcsec_gss_krb5
+	            log_progress_msg "gssd"
+		    start-stop-daemon --start --oknodo --quiet \
+			    --make-pidfile --pidfile $GSSD_PIDFILE \
+			    --exec /usr/sbin/rpc.gssd -- $RPCGSSDOPTS
+	            if [ $? != 0 ]; then
+        	        log_end_msg $?
+        	        exit $?
+                    fi
+		fi
+	    fi
+	fi
+	log_end_msg 0
+	;;
+
+  stop)
+	log_daemon_msg "Stopping $DESC"
+
+	if [ "$NEED_GSSD" = yes ]
+	then
+	    log_progress_msg "gssd"
+	    start-stop-daemon --stop --oknodo --quiet \
+		    --name rpc.gssd
+	    if [ $? != 0 ]; then
+                log_end_msg $?
+                exit $?
+            fi
+	    rm -f $GSSD_PIDFILE
+	fi
+	if [ "$NEED_IDMAPD" = yes ]
+	then
+	    log_progress_msg "idmapd"
+	    start-stop-daemon --stop --oknodo --quiet \
+		--name rpc.idmapd
+	    if [ $? != 0 ]; then
+                log_end_msg $?
+                exit $?
+            fi
+	    rm -f $IDMAPD_PIDFILE
+	fi
+	if [ "$NEED_LOCKD" = yes ]
+	then
+	    log_progress_msg "lockd"
+	    start-stop-daemon --stop --oknodo --quiet \
+		--name rpc.lockd
+	    if [ $? != 0 ]; then
+                log_end_msg $?
+                exit $?
+            fi
+	else
+	    pkill -KILL -u root -x lockd || true
+	fi
+	log_progress_msg "statd"
+	start-stop-daemon --stop --oknodo --quiet \
+	    --name rpc.statd
+	if [ $? != 0 ]; then
+            log_end_msg $?
+            exit $?
+        fi
+	do_umount $PIPEFS_MOUNTPOINT 2>/dev/null || true
+	log_end_msg 0
+	;;
+
+  status)
+	if ! pidof rpc.statd >/dev/null
+	then
+	    echo "rpc.statd not running"
+	    exit 3
+	fi
+
+	if [ "$NEED_GSSD" = yes ]
+	then
+            if [ ! -f "$GSSD_PIDFILE" ] || ! pidof rpc.gssd >/dev/null
+	    then
+		echo "rpc.statd running, but rpc.gssd halted"
+		exit 3
+	    fi
+	fi
+
+	if [ "$NEED_LOCKD" = yes ]
+	then
+	    if ! pidof rpc.lockd >/dev/null
+	    then
+		echo "rpc.statd running, but rpc.lockd halted"
+		exit 3
+	    fi
+	fi
+	    
+	if [ "$NEED_IDMAPD" = yes ]
+	then
+            if [ ! -f "$IDMAPD_PIDFILE" ] || ! pidof rpc.idmapd >/dev/null
+	    then
+		echo "rpc.statd running, but rpc.idmapd halted"
+		exit 3
+	    fi
+	fi
+
+	echo "rpc.statd running"
+	exit 0
+	;;
+
+  restart | force-reload)
+	$0 stop
+	sleep 1
+	$0 start
+	;;
+
+  *)
+	log_success_msg "Usage: nfs-common {start|stop|status|restart}"
+	exit 1
+	;;
+esac
+
+exit 0
