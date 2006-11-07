@@ -29,8 +29,8 @@ double quotes. You can also specify spaces or other unusual character in
 the export name using a backslash followed by the character code as three
 octal digits.
 .PP
-To apply changes to this file, run exportfs -ra or (on Debian)
-/etc/init.d/nfs-kernel-server reload.
+To apply changes to this file, run exportfs \-ra or /etc/init.d/nfs-kernel-server
+reload (the latter being a distribution-specific extension).
 .PP
 .SS Machine Name Formats
 NFS clients may be specified in a number of ways:
@@ -120,11 +120,11 @@ storage (see
 above).
 
 In releases of nfs-utils upto and including 1.0.0, this option was the
-default.  In this and future releases,
+default.  In all subsequence releases,
 .I sync
 is the default, and
 .I async
-must be explicit requested if needed.
+must be explicitly requested if needed.
 To help make system adminstrators aware of this change, 'exportfs'
 will issue a warning if neither
 .I sync
@@ -219,6 +219,16 @@ exported with subtree checks enabled.
 The default of having subtree checks enabled, can be explicitly
 requested with
 .IR subtree_check .
+
+From release 1.1.0 of nfs-utils onwards, the default will be
+.I no_subtree_check
+as subtree_checking tends to cause more problems than it is worth.
+If you genuinely require subtree checking, you should explicitly put
+that option in the
+.B exports
+file.  If you put neither option,
+.I exportfs
+will warn you that the change is pending.
 
 .TP
 .IR insecure_locks
@@ -395,8 +405,11 @@ Here's the complete list of mapping options:
 .TP
 .IR root_squash
 Map requests from uid/gid 0 to the anonymous uid/gid. Note that this does
-not apply to any other uids that might be equally sensitive, such as user
-.IR bin .
+not apply to any other uids or gids that might be equally sensitive, such as
+user
+.IR bin 
+or group
+.IR staff .
 .TP
 .IR no_root_squash
 Turn off root squashing. This option is mainly useful for diskless clients.

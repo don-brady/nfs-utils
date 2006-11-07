@@ -1,7 +1,10 @@
 #!/usr/bin/make -f
 # Sample debian/rules that uses debhelper. GNU copyright 1997 by Joey Hess.
 
-export DH_VERBOSE=1
+DEB_BUILD_GNU_TYPE	:= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DEB_HOST_GNU_TYPE	:= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_HOST_ARCH		:= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+DEB_HOST_ARCH_OS	:= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 
 # Temporary root
 DEBTMP	:= $(shell pwd)/debian/tmp
@@ -9,7 +12,10 @@ DEBTMP	:= $(shell pwd)/debian/tmp
 build: build-stamp
 build-stamp:
 	dh_testdir
-	./configure \
+ifeq ($(DEB_HOST_ARCH),ia64)
+	patch -p1 < debian/bzero.patch
+endif
+	CFLAGS="-g -O2 -Wall" ./configure \
 		--mandir='$${prefix}/share/man' \
 		--enable-secure-statd 
 	$(MAKE)

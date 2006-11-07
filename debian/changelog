@@ -1,3 +1,163 @@
+nfs-utils (1:1.0.10-4) unstable; urgency=low
+
+  * README.Debian.nfsv4 updates.
+    * Document how to mount using GSS; previously, we only documented server
+      setup.
+    * Change the section about setclientid in the light of the new util-linux
+      version.
+  * Fix a grammatical error in the exports(5) man page; patch from Joey
+    Schultze. (Closes: #396344)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Tue,  7 Nov 2006 02:57:21 +0100
+
+nfs-utils (1:1.0.10-3) unstable; urgency=low
+
+  * Copy the do_modprobe() definition from nfs-kernel-server.init to
+    nfs-common.init, fixing spurious warnings when running a non-modular
+    kernel. (Closes: #394810)
+  * Wrap README.Debian.nfsv4 at 80 columns. (Closes: #394916)
+  * In README.Debian.nfsv4, added a note about /etc/hosts entries containing
+    non-global IP addresses.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Wed, 25 Oct 2006 11:50:52 +0200
+
+nfs-utils (1:1.0.10-2) unstable; urgency=low
+
+  * Remove leftover log file from the .diff.gz.
+  * Build package with -O2; it got lost somewhere along the way.
+  * Replace - by \- in man pages (exports, nfsstat, showmount) where
+    appropriate.
+  * Add Required-Stop to the nfs-common and nfs-kernel-server init script
+    blocks to match the Required-Start directives.
+  * Finally remove DH_VERBOSE=1 from debian/rules.
+  * Add a reference to Trond Myklebust's client patch sets in
+    README.Debian.nfsv4.
+  * Handle issues with the nfs entries missing in /etc/services. (Closes:
+    #392276).
+    * Depend on netbase (>= 4.24), to make sure we have a version that has the
+      entries in the first place.
+    * Document that the entries might be missing still in README.Debian.nfsv4
+      (in case the user refused to replace a modified version of
+      /etc/services), and that they might need re-adding.
+    * Make the init script check that the lines are there before starting
+      rpc.gssd, and refer to the README otherwise.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Wed, 11 Oct 2006 15:15:49 +0200
+
+nfs-utils (1:1.0.10-1) unstable; urgency=low
+
+  * New upstream release.
+    * Fixes issues with missing write_oid() function. (Closes: #386117)
+  * Drop versioned dependency on libnfsidmap1, now that libnfsidmap-dev has
+    fixed shlibs. This makes it possible to build against libnfsidmap2.
+    (Closes: #386116)
+  * Update README.Debian.nfsv4.
+    * Remove the part about a patched mount; the NFSv4 patch has been enabled
+      in mount for some time.
+    * Note that the special export structure might go away in the future.
+    * Note that you will need idmapd and possibly gssd/svcgssd enabled.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Wed,  6 Sep 2006 00:30:32 +0200
+
+nfs-utils (1:1.0.9-12) unstable; urgency=low
+
+  * Really remove dependency on sysvinit.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Tue,  5 Sep 2006 13:59:29 +0200
+
+nfs-utils (1:1.0.9-11) unstable; urgency=low
+
+  * In the exports man page, document that there might be sensitive non-root
+    gids as well as uids, for instance gid staff. (Closes: #385377)
+  * Remove unnecessary dependency on sysvinit, in line with the Ubuntu
+    packages.
+  * Change the versioned build-dependency on librpcsecgss-dev (>= 0.14-2)
+    to a build-conflict on 0.14-1, as that is the only version, and it's
+    easier for backports and other distributions without the new version of
+    librpcsecgss.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Thu, 31 Aug 2006 01:53:45 +0200
+
+nfs-utils (1:1.0.9-10) unstable; urgency=low
+
+  * The -n option (short option for --no-tcp) to rpc.mountd was set
+    to take a parameter, even though --no-tcp doesn't take any, the
+    parameter is never used and the help doesn't mention any. Remove
+    the colon after 'n' in the getopt string to fix it.
+  * Add a versioned dependency from nfs-common to libnfsidmap1 (>= 0.16-3)
+    temporarily, to work around #384688.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Sat, 26 Aug 2006 03:29:09 +0200
+
+nfs-utils (1:1.0.9-9) unstable; urgency=medium
+
+  * Patched svc_socket.c to define __bzero only on ia64.
+    Closes: #384552.
+ 
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Fri, 25 Aug 2006 11:45:07 +1000
+
+nfs-utils (1:1.0.9-8) unstable; urgency=medium
+
+  * In the init scripts, don't attempt to use pid files; the daemons don't
+    leave them, and --make-pidfile gives wrong pid files since all the daemons
+    fork by themselves. Thus, multiple invocations of "start" could leave
+    multiple daemons lying around, which could cause all sorts of problems.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Thu, 17 Aug 2006 17:24:11 +0200
+
+nfs-utils (1:1.0.9-7) unstable; urgency=low
+
+  * New sourceful upload to force rebuild against librpcsecgss3, to get all
+    architectures in sync and make sure rpc.gssd actually has a proper library
+    to link against.
+  * Build-depend against librpcsecgss-dev (>= 0.14-2), since that's when
+    the package name bump happened.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Sat, 12 Aug 2006 19:55:35 +0200
+
+nfs-utils (1:1.0.9-6) unstable; urgency=low
+
+  * Enable idmapd by default if we find an /etc/exports file, as NFSv4 exports
+    need idmapd. (See the init script for the complete reasoning). Also start
+    nfs-common on initial installation of nfs-kernel-server, as we don't want
+    to reboot or restart nfs-common manually just to get idmapd working the
+    first time. (Closes: #381366)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Mon,  7 Aug 2006 21:27:37 +0200
+
+nfs-utils (1:1.0.9-5) unstable; urgency=low
+
+  * Put rpc.svcgssd back into place; removing it was obviously not what
+    upstream intended to do after all. (Closes: #378686)
+    * Add rpc.svcgssd to nfs-kernel-server.install.
+    * Add the svcgssd(8) man page, as well as the rpc.svcgssd(8) symlink.
+    * Add NEED_SVCGSSD and RPCSECGSSDOPTS options to nfs-kernel-server.default.
+    * Start and rpc.svcgssd in the nfs-kernel-server init script. Currently,
+      no autodetection is done; you'll need to enable it manually. (We can't
+      start it regardless, since it bombs out if there is no adequate nfs/*
+      entry in the keytab.)
+  * Remove obsolete RPCGSSDOPTS option from the nfs-kernel-server init script.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Wed, 19 Jul 2006 14:06:33 +0200
+
+nfs-utils (1:1.0.9-4) unstable; urgency=low
+
+  * Remove versioned dependency on coreutils, as we don't use it indirectly,
+    only via ucf (so the dependency should be there). This makes the package
+    somewhat easier to backport to sarge.
+  * Remove the word "Debian" from our patch against the exports(5) man page,
+    as Debian is not the only distribution using these packages.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Sun, 16 Jul 2006 01:59:13 +0200
+
+nfs-utils (1:1.0.9-3) unstable; urgency=low
+
+  * Don't automatically assume that the kernel is modular if /sbin/modprobe
+    is available, check for /proc/modules as well; patch from Nicolas
+    Trecourt. (Closes: #377685)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Thu, 13 Jul 2006 21:39:08 +0200
+
 nfs-utils (1:1.0.9-2) unstable; urgency=low
 
   * Merge changes from 1.0.9-1 and 1.0.9pre1-4:

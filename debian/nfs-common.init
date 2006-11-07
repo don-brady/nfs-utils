@@ -3,6 +3,7 @@
 ### BEGIN INIT INFO
 # Provides:          nfs-common
 # Required-Start:    $time
+# Required-Stop:     $time
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: NFS support files common to client and server
@@ -19,9 +20,7 @@ DEFAULTFILE=/etc/default/nfs-common
 PREFIX=
 NEED_LOCKD=
 NEED_IDMAPD=
-IDMAPD_PIDFILE=/var/run/rpc.idmapd.pid
 NEED_GSSD=
-GSSD_PIDFILE=/var/run/rpc.gssd.pid
 PIPEFS_MOUNTPOINT=/var/lib/nfs/rpc_pipefs
 RPCGSSDOPTS=
 if [ -f $DEFAULTFILE ]; then
@@ -76,6 +75,20 @@ done
 
 exec 0<&9 9<&-
 
+#
+# We also need idmapd if we run an NFSv4 server. It's fairly difficult
+# to autodetect whether there are NFSv4 exports or not, and idmapd is not a
+# particularily heavy daemon, so we auto-enable it if we find an /etc/exports
+# file. This does not mean that there are NFSv4 or other mounts active (or
+# even that nfs-kernel-server is installed), but it matches what the "start"
+# condition in nfs-kernel-server's init script does, which has a value in
+# itself.
+#
+if [ -f /etc/exports ]; then
+    AUTO_NEED_IDMAPD=yes
+fi
+
+
 case "$NEED_IDMAPD" in
     yes|no)	
         ;;
@@ -99,7 +112,10 @@ esac
 [ -x /usr/sbin/rpc.gssd     ] || [ "$NEED_GSSD"   = no ] || exit 0
 
 do_modprobe() {
-    modprobe -q "$1" || true
+    if [ -x /sbin/modprobe -a -f /proc/modules ]
+    then
+        modprobe -q "$1" || true
+    fi
 }
 
 do_mount() {
@@ -156,7 +172,6 @@ case "$1" in
 		then
 	            log_progress_msg "idmapd"
 		    start-stop-daemon --start --oknodo --quiet \
-			    --make-pidfile --pidfile $IDMAPD_PIDFILE \
 			    --exec /usr/sbin/rpc.idmapd
 	            if [ $? != 0 ]; then
         	        log_end_msg $?
@@ -167,8 +182,15 @@ case "$1" in
 		then
 		    do_modprobe rpcsec_gss_krb5
 	            log_progress_msg "gssd"
+
+	            # we need this available; better to fail now than
+		    # mysteriously on the first mount
+		    if ! grep -q -E '^nfs[	 ]' /etc/services; then
+		    	log_action_end_msg 1 "broken /etc/services, please see /usr/share/doc/nfs-common/README.Debian.nfsv4"
+			exit 1
+		    fi
+
 		    start-stop-daemon --start --oknodo --quiet \
-			    --make-pidfile --pidfile $GSSD_PIDFILE \
 			    --exec /usr/sbin/rpc.gssd -- $RPCGSSDOPTS
 	            if [ $? != 0 ]; then
         	        log_end_msg $?
@@ -192,7 +214,6 @@ case "$1" in
                 log_end_msg $?
                 exit $?
             fi
-	    rm -f $GSSD_PIDFILE
 	fi
 	if [ "$NEED_IDMAPD" = yes ]
 	then
@@ -203,7 +224,6 @@ case "$1" in
                 log_end_msg $?
                 exit $?
             fi
-	    rm -f $IDMAPD_PIDFILE
 	fi
 	if [ "$NEED_LOCKD" = yes ]
 	then
@@ -237,7 +257,7 @@ case "$1" in
 
 	if [ "$NEED_GSSD" = yes ]
 	then
-            if [ ! -f "$GSSD_PIDFILE" ] || ! pidof rpc.gssd >/dev/null
+            if ! pidof rpc.gssd >/dev/null
 	    then
 		echo "rpc.statd running, but rpc.gssd halted"
 		exit 3
@@ -255,7 +275,7 @@ case "$1" in
 	    
 	if [ "$NEED_IDMAPD" = yes ]
 	then
-            if [ ! -f "$IDMAPD_PIDFILE" ] || ! pidof rpc.idmapd >/dev/null
+            if ! pidof rpc.idmapd >/dev/null
 	    then
 		echo "rpc.statd running, but rpc.idmapd halted"
 		exit 3
