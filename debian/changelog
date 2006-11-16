@@ -1,3 +1,9 @@
+nfs-utils (1:1.0.10-5) feisty; urgency=low
+
+  * Don't build getkversion.  Fixes FTBFS.
+
+ -- Tollef Fog Heen <tfheen@ubuntu.com>  Thu, 16 Nov 2006 03:22:21 +0100
+
 nfs-utils (1:1.0.10-4) unstable; urgency=low
 
   * README.Debian.nfsv4 updates.
