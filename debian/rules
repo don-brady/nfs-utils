@@ -10,7 +10,8 @@ build-stamp:
 	dh_testdir
 	CFLAGS="-g -O2 -Wall" ./configure \
 		--mandir='$${prefix}/share/man' \
-		--enable-secure-statd 
+		--enable-secure-statd \
+		--with-tcp-wrappers
 	$(MAKE)
 	touch build-stamp
 
@@ -20,7 +21,6 @@ clean: unpatch
 	rm -f build-stamp
 	rm -rf $(DEBTMP)
 	-$(MAKE) distclean
-	$(RM) utils/rquotad/rquota.h utils/rquotad/rquota_xdr.c
 	dh_clean
 
 binary-indep: build
