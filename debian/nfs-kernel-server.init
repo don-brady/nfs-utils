@@ -130,7 +130,7 @@ case "$1" in
 
   stop)
 	log_daemon_msg "Stopping $DESC"
-	
+
 	log_progress_msg "mountd"
 	start-stop-daemon --stop --oknodo --quiet \
 	    --name rpc.mountd --user 0
@@ -138,7 +138,7 @@ case "$1" in
 		log_end_msg $?
 		exit $?
 	fi
-	        
+
 	if [ "$NEED_SVCGSSD" = "yes" ]; then
 		log_progress_msg "svcgssd"
 		start-stop-daemon --stop --oknodo --quiet \

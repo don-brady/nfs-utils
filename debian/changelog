@@ -1,9 +1,156 @@
+nfs-utils (1:1.1.1-12) unstable; urgency=medium
+
+  * Comment in dh_strip again, which probably was commented out during a
+    debugging session at some point.
+  * Don't exclude mount.nfs from dh_fixperms; make it suid root manually after
+    dh_fixperms instead. Makes it world and group readable as it should be.
+    (Closes: #458239)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Sat, 29 Dec 2007 23:25:36 +0100
+
+nfs-utils (1:1.1.1-11) unstable; urgency=low
+
+  * 10-no-flush-blkid-cache.diff: New patch from Theodore Ts'o, removes
+    unneccessary flushing of the blkid cache, leading to lots of spurious
+    DM_* ioctls. (Closes: #431940)
+  * Sorted the list of patches in debian/patches/, and refreshed all patches
+    to fix hunk offsets.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Tue, 18 Dec 2007 00:06:10 +0100
+
+nfs-utils (1:1.1.1-10) unstable; urgency=low
+
+  * 09-fix-nfsstat-option.patch: New patch, fixes so nfsstat help and man
+    pages say --mounts instead of the wrong --mounted. (Closes: #451965)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Sat, 24 Nov 2007 18:16:51 +0100
+
+nfs-utils (1:1.1.1-9) unstable; urgency=high
+
+  * Re-add modprobing of the "nfs" module (leaving the sunrpc module, so as
+    not to break what the previous change fixed), as mount is not capable of
+    auto-loading it on demand. (Closes: #451782)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Sun, 18 Nov 2007 19:14:48 +0100
+
+nfs-utils (1:1.1.1-8) unstable; urgency=low
+
+  * When starting idmapd or gssd, load the sunrpc module instead of the
+    nfs/nfs4 modules; if the machine is server-only, it might not have
+    nfs/nfs4 (which are client-side modules) available.
+    (Closes: #449137)
+  * Revert NEED_MOUNTD patch; mountd is always needed, also for NFSv4.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Sun, 04 Nov 2007 13:05:57 +0000
+
+nfs-utils (1:1.1.1-7) unstable; urgency=low
+
+  * More init script breakage: Fix default value of NEED_STATD.
+    (Closes: #448688)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Wed, 31 Oct 2007 09:15:53 +0100
+
+nfs-utils (1:1.1.1-6) unstable; urgency=low
+
+  * Fix typo in init script. (Closes: #448538, #448607, #448564)
+  * In the init script, save the value of $? into a variable instead of using
+    $? over and over again, as it will get clobbered after the first command
+    using it.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Tue, 30 Oct 2007 17:18:12 +0100
+
+nfs-utils (1:1.1.1-4) unstable; urgency=low
+
+  * Remove broken hack introduced in 1.1.1-3.
+  * Fix init script to work if the package has been removed but not purged;
+    patch adapted from Morita Sho. (Closes: #448251)
+  * Patch init script to allow not running rpc.statd or rpc.mountd (via
+    settings in /etc/default/), since they are not needed for an NFSv4-only
+    setup; patch adapted from David Härdeman. (Closes: #448234)
+  * Clarify language in the exportfs man page; patch adapted from 
+    David Liontooth. (Closes: #443591)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Mon, 29 Oct 2007 18:33:15 +0100
+
+nfs-utils (1:1.1.1-3) unstable; urgency=low
+
+  * Fixed "FTBFS: error: called object 'major' is not a function" by
+    defining the missing called objects only on arm. Closes: #447578.
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Mon, 22 Oct 2007 19:16:49 +1000
+
+nfs-utils (1:1.1.1-2) unstable; urgency=low
+
+  * 07-amd64-logging-segfault.patch: New patch from Steve Langasek, fixes
+    segfault in logging code on amd64. (Closes: #447407, #447451)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Sun, 21 Oct 2007 12:52:01 +0200
+
+nfs-utils (1:1.1.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Fri, 19 Oct 2007 17:36:22 +1000
+
+nfs-utils (1:1.1.1~git-20070929-1) unstable; urgency=low
+
+  * New git snapshot.
+    * Update debian/copyright with new version information.
+    * 07-daemonize-instead-of-fork.patch: Now in upstream, removed.
+    * 08-libgssglue-changes.patch: Now in upstream, removed.
+    * 09-define-major-minor.patch: Now in upstream, removed.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Sat, 29 Sep 2007 15:03:21 +0200
+
+nfs-utils (1:1.1.1~git-20070709-5) unstable; urgency=low
+
+  * Fix totally broken export-detecting regex in the init script; patch by
+    Quentin Godfroy. (Closes: #444155)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Wed, 26 Sep 2007 17:50:40 +0200
+
+nfs-utils (1:1.1.1~git-20070709-4) unstable; urgency=low
+
+  * Replaced libgssapi-dev as build-dependency by libgssglue-dev.
+    - Added 08-libgssglue-changes.patch.
+  * Defined major and minor macros. Closes: #442122.
+    - Added 09-define-major-minor.patch.
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Tue, 11 Sep 2007 20:12:50 +1000
+
+nfs-utils (1:1.1.1~git-20070709-3) unstable; urgency=low
+
+  * If there is no override present when running the post-removal script, do
+    not return exit status code 2. Closes: #436411.
+  * Fixed the following lintian message:
+    - W: nfs-utils source: debian-rules-ignores-make-clean-error line 23
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Sat, 11 Aug 2007 20:17:26 +1000
+
+nfs-utils (1:1.1.1~git-20070709-2) unstable; urgency=low
+
+  * 07-daemonize-instead-of-fork.patch: New patch from upstream, uses
+    daemon() instead of fork() and exit() for background mounts. Should
+    properly detach from the terminal and thus keep the kernel from SIGHUPing
+    mount during boot. (Closes: #144185, #156664)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Sat, 11 Aug 2007 09:27:53 +0200
+
 nfs-utils (1:1.1.1~git-20070706-2) unstable; urgency=low
 
   * If there is no override present when running the post-removal script, do
     not return exit status code 2. Closes: #436411.
-  
+
  -- Anibal Monsalve Salazar <anibal@debian.org>  Tue, 07 Aug 2007 17:34:47 +1000
+
+nfs-utils (1:1.1.1~git-20070709-1) unstable; urgency=low
+
+  * New upstream release.
+    * Update debian/copyright with the new date.
+    * No longer tries to build with -mno-fp-regs on Alpha, which should fix
+      FTBFS on that platform. (Closes: #436491)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Thu, 09 Aug 2007 17:30:29 +0200
 
 nfs-utils (1:1.1.1~git-20070706-1) unstable; urgency=low
 
