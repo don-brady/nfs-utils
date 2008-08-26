@@ -35,6 +35,10 @@
  * nfsmount.c,v 1.1.1.1 1993/11/18 08:40:51 jrs Exp
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <ctype.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -63,6 +67,14 @@
 #include "nls.h"
 #include "error.h"
 #include "network.h"
+#include "version.h"
+
+#ifdef HAVE_RPCSVC_NFS_PROT_H
+#include <rpcsvc/nfs_prot.h>
+#else
+#include <linux/nfs.h>
+#define nfsstat nfs_stat
+#endif
 
 #ifndef NFS_PORT
 #define NFS_PORT 2049
@@ -90,8 +102,6 @@ extern int nfs_mount_data_version;
 extern char *progname;
 extern int verbose;
 extern int sloppy;
-
-extern int linux_version_code(void);
 
 static inline enum clnt_stat
 nfs3_mount(CLIENT *clnt, mnt3arg_t *mnt3arg, mnt3res_t *mnt3res)
@@ -475,7 +485,7 @@ static int nfsmnt_check_compat(const struct pmap *nfs_pmap,
 	}
 
 	if (mnt_pmap->pm_vers > max_mnt_vers) {
-		nfs_error(_("%s: NFS mount version %ld s not supported"),
+		nfs_error(_("%s: NFS mount version %ld is not supported"),
 				progname, mnt_pmap->pm_vers);
 		goto out_bad;
 	}
@@ -490,7 +500,6 @@ int
 nfsmount(const char *spec, const char *node, int flags,
 	 char **extra_opts, int fake, int running_bg)
 {
-	static char *prev_bg_host;
 	char hostdir[1024];
 	char *hostname, *dirname, *old_opts, *mounthost = NULL;
 	char new_opts[1024], cbuf[1024];
@@ -567,7 +576,7 @@ nfsmount(const char *spec, const char *node, int flags,
 #endif
 
 	bg = 0;
-	retry = 10000;		/* 10000 minutes ~ 1 week */
+	retry = -1;
 
 	memset(mnt_pmap, 0, sizeof(*mnt_pmap));
 	mnt_pmap->pm_prog = MOUNTPROG;
@@ -581,9 +590,13 @@ nfsmount(const char *spec, const char *node, int flags,
 		goto fail;
 	if (!nfsmnt_check_compat(nfs_pmap, mnt_pmap))
 		goto fail;
-	
-	if (retry == 10000 && !bg)
-		retry = 2; /* reset for fg mounts */
+
+	if (retry == -1) {
+		if (bg)
+			retry = 10000;	/* 10000 mins == ~1 week*/
+		else
+			retry = 2;	/* 2 min default on fg mounts */
+	}
 
 #ifdef NFS_MOUNT_DEBUG
 	printf(_("rsize = %d, wsize = %d, timeo = %d, retrans = %d\n"),
@@ -619,18 +632,6 @@ nfsmount(const char *spec, const char *node, int flags,
 
 	if (flags & MS_REMOUNT)
 		goto out_ok;
-
-	/*
-	 * If the previous mount operation on the same host was
-	 * backgrounded, and the "bg" for this mount is also set,
-	 * give up immediately, to avoid the initial timeout.
-	 */
-	if (bg && !running_bg &&
-	    prev_bg_host && strcmp(hostname, prev_bg_host) == 0) {
-		if (retry > 0)
-			retval = EX_BG;
-		return retval;
-	}
 
 	/* create mount deamon client */
 
@@ -700,7 +701,6 @@ nfsmount(const char *spec, const char *node, int flags,
 			continue;
 		}
 		if (!running_bg) {
-			prev_bg_host = xstrdup(hostname);
 			if (retry > 0)
 				retval = EX_BG;
 			goto fail;
@@ -714,7 +714,7 @@ nfsmount(const char *spec, const char *node, int flags,
 			rpc_mount_errors(*nfs_server.hostname, 1, bg);
 	}
 
-	if (nfs_pmap->pm_vers == 2) {
+	if (mnt_pmap->pm_vers <= 2) {
 		if (mntres.nfsv2.fhs_status != 0) {
 			nfs_error(_("%s: %s:%s failed, reason given by server: %s"),
 					progname, hostname, dirname,
@@ -734,7 +734,7 @@ nfsmount(const char *spec, const char *node, int flags,
 #if NFS_MOUNT_VERSION >= 4
 		mountres3_ok *mountres;
 		fhandle3 *fhandle;
-		int i, *flavor, yum = 0;
+		int i,  n_flavors, *flavor, yum = 0;
 		if (mntres.nfsv3.fhs_status != 0) {
 			nfs_error(_("%s: %s:%s failed, reason given by server: %s"),
 					progname, hostname, dirname,
@@ -743,13 +743,16 @@ nfsmount(const char *spec, const char *node, int flags,
 		}
 #if NFS_MOUNT_VERSION >= 5
 		mountres = &mntres.nfsv3.mountres3_u.mountinfo;
-		i = mountres->auth_flavors.auth_flavors_len;
-		if (i <= 0)
+		n_flavors = mountres->auth_flavors.auth_flavors_len;
+		if (n_flavors <= 0)
 			goto noauth_flavors;
 
 		flavor = mountres->auth_flavors.auth_flavors_val;
-		while (--i >= 0) {
-			/* If no flavour requested, use first simple
+		for (i = 0; i < n_flavors; ++i) {
+			/*
+			 * Per RFC2623, section 2.7, we should prefer the
+			 * flavour listed first.
+			 * If no flavour requested, use the first simple
 			 * flavour that is offered.
 			 */
 			if (! (data.flags & NFS_MOUNT_SECFLAVOUR) &&
@@ -811,7 +814,7 @@ noauth_flavors:
 	 * to avoid problems with multihomed hosts.
 	 * --Swen
 	 */
-	if (linux_version_code() <= 0x01030a && fsock != -1
+	if (linux_version_code() <= MAKE_VERSION(1, 3, 10) && fsock != -1
 	    && connect(fsock, (struct sockaddr *) nfs_saddr,
 		       sizeof (*nfs_saddr)) < 0) {
 		perror(_("nfs connect"));
@@ -848,7 +851,7 @@ noauth_flavors:
 		if (!start_statd()) {
 			nfs_error(_("%s: rpc.statd is not running but is "
 				"required for remote locking.\n"
-				"   Either use '-o nolocks' to keep "
+				"   Either use '-o nolock' to keep "
 				"locks local, or start statd."),
 					progname);
 			goto fail;

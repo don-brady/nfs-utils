@@ -1,8 +1,7 @@
-02-document-debian-init-scripts.patch
-03-sm-notify-in-sbin.patch
-05-ignore-quota-option.patch
-06-gssd-manpage-typo.patch
-07-amd64-logging-segfault.patch
-08-clarify-unexport.patch
-09-fix-nfsstat-option.patch
-10-no-flush-blkid-cache.diff
+01-sm-notify-in-sbin.patch
+03-handle-mtab-symlink.patch
+05-default-use-old-mount-interface.patch
+06-dont-check-exec-bit.patch
+07-remove-duplicate-exports-paragraphs.patch
+09-492827-cache.c.patch
+10-493659-nfs.man.patch

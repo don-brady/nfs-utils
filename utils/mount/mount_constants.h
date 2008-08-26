@@ -1,5 +1,5 @@
-#ifndef _NFS_MOUNT_CONSTANTS_H
-#define _NFS_MOUNT_CONSTANTS_H
+#ifndef _NFS_UTILS_MOUNT_CONSTANTS_H
+#define _NFS_UTILS_MOUNT_CONSTANTS_H
 
 #ifndef MS_DIRSYNC
 #define MS_DIRSYNC	128	/* Directory modifications are synchronous */
@@ -39,7 +39,10 @@ if we have a stack or plain mount - mount atop of it, forming a stack. */
 #ifndef MS_VERBOSE
 #define MS_VERBOSE	0x8000	/* 32768 */
 #endif
-
+#ifndef MS_RELATIME
+#define MS_RELATIME 0x200000 /* 200000: Update access times relative
+                                  to mtime/ctime */
+#endif
 /*
  * NFS fs-specific mount option flags
  *
@@ -61,4 +64,4 @@ if we have a stack or plain mount - mount atop of it, forming a stack. */
 #define MS_MGC_MSK 0xffff0000	/* magic flag number mask */
 #endif
 
-#endif /* _NFS_MOUNT_CONSTANTS_H */
+#endif	/* _NFS_UTILS_MOUNT_CONSTANTS_H */
