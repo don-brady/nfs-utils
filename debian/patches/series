@@ -2,3 +2,5 @@
 03-handle-mtab-symlink.patch
 07-remove-duplicate-exports-paragraphs.patch
 10-493659-nfs.man.patch
+101-reduce-verbosity.diff
+

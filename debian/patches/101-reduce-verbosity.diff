@@ -1,0 +1,42 @@
+--- nfs-utils-1.1.2.orig/utils/gssd/gssd_proc.c
++++ nfs-utils-1.1.2/utils/gssd/gssd_proc.c
+@@ -453,7 +453,7 @@
+ 	unsigned int timeout = 0;
+ 	int	zero = 0;
+ 
+-	printerr(1, "doing error downcall\n");
++	printerr(2, "doing error downcall\n");
+ 
+ 	if (WRITE_BYTES(&p, end, uid)) goto out_err;
+ 	if (WRITE_BYTES(&p, end, timeout)) goto out_err;
+@@ -677,7 +677,7 @@
+ 	char			**ccname;
+ 	int			create_resp = -1;
+ 
+-	printerr(1, "handling krb5 upcall\n");
++	printerr(2, "handling krb5 upcall\n");
+ 
+ 	token.length = 0;
+ 	token.value = NULL;
+@@ -743,7 +743,7 @@
+ 	}
+ 
+ 	if (!authgss_get_private_data(auth, &pd)) {
+-		printerr(0, "WARNING: Failed to obtain authentication "
++		printerr(2, "WARNING: Failed to obtain authentication "
+ 			    "data for user with uid %d for server %s\n",
+ 			 uid, clp->servername);
+ 		goto out_return_error;
+only in patch2:
+unchanged:
+--- nfs-utils-1.1.2.orig/utils/gssd/gss_util.c
++++ nfs-utils-1.1.2/utils/gssd/gss_util.c
+@@ -122,7 +122,7 @@
+ 				"gss_display_status called from %s\n", m);
+ 			break;
+ 		} else {
+-			printerr(0, "ERROR: GSS-API: (%s) error in %s(): %s\n",
++			printerr(2, "ERROR: GSS-API: (%s) error in %s(): %s\n",
+ 			    typestr, m, (char *)msg.value);
+ 		}
+ 
