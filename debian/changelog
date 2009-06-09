@@ -1,3 +1,12 @@
+nfs-utils (1:1.2.0-2) unstable; urgency=low
+
+  * Merge from Ubuntu
+  * Rename 101-reduce-verbosity.diff to 11-532048-reduce-verbosity.patch
+  * Fix syslog verbosity with expired kerberos creds; closes: #532048
+    11-532048-reduce-verbosity.patch
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Tue, 09 Jun 2009 10:50:33 +1000
+
 nfs-utils (1:1.2.0-1ubuntu1) karmic; urgency=low
 
   * Merge from Debian unstable, remaining changes:
