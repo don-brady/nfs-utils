@@ -1,3 +1,14 @@
+nfs-utils (1:1.2.2-2) unstable; urgency=low
+
+  [ Vagrant Cascadian ]
+  * Ensure files under /var/lib/nfs/ are owned by statd user. 
+    Closes: #574510 
+
+  [ Anibal Monsalve Salazar ]
+  * Fix out-of-date-standards-version
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Tue, 13 Jul 2010 15:20:17 +1000
+ 
 nfs-utils (1:1.2.2-1) unstable; urgency=low
 
   [ Anibal Monsalve Salazar ]
