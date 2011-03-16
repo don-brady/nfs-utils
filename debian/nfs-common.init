@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ### BEGIN INIT INFO
 # Provides:          nfs-common
@@ -136,12 +136,27 @@ case "$1" in
 
 	if [ "$NEED_STATD" = yes ]; then
 	    log_progress_msg "statd"
+	    
+	    # See if portmap or rpcbind are running
+	    (cat </dev/null >/dev/tcp/localhost/111) 2>/dev/null
+	    RET=$?
+	    if [ $RET != 0 ]; then
+		echo
+		log_warning_msg "Not starting: portmap daemon is not running"
+		exit 0
+	    fi
+
 	    start-stop-daemon --start --oknodo --quiet \
+		--pidfile /var/run/rpc.statd.pid \
 	        --exec $PREFIX/sbin/rpc.statd -- $STATDOPTS
 	    RET=$?
 	    if [ $RET != 0 ]; then
 	        log_end_msg $RET
 	        exit $RET
+	    else
+		mkdir -p /lib/init/rw/sendsigs.omit.d
+		rm -f /lib/init/rw/sendsigs.omit.d/statd
+		ln -s /var/run/rpc.statd.pid /lib/init/rw/sendsigs.omit.d/statd
 	    fi
 	fi
 
