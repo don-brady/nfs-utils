@@ -22,7 +22,7 @@ build-stamp:
 	CFLAGS="$(CFLAGS)" ./configure \
 		--mandir='$${prefix}/share/man' \
 		--enable-nfsv41 \
-		--disable-tirpc \
+		--enable-ipv6 \
 		--with-tcp-wrappers
 	$(MAKE) $(MAKEFLAGS)
 	touch build-stamp
@@ -43,12 +43,17 @@ binary-arch: build
 	dh_installdirs
 	mkdir $(DEBTMP)
 	$(MAKE) DESTDIR='$(DEBTMP)' install
-	dh_install
+	dh_installman
+	dh_install -Xman --fail-missing
 	dh_installdocs -A
 	dh_installdocs -pnfs-common debian/README.Debian.nfsv4
 	install -m 0755 debian/nfs-common.init debian/nfs-common/etc/init.d/nfs-common
 	install -m 0755 debian/nfs-kernel-server.init debian/nfs-kernel-server/etc/init.d/nfs-kernel-server
-	dh_installman
+	install -m 0644 debian/nfs-common.bugcontrol debian/nfs-common/usr/share/bug/nfs-common/control
+	install -m 0755 debian/nfs-common.bugscript debian/nfs-common/usr/share/bug/nfs-common/script
+	install -m 0644 debian/nfs-utils.bugcontrol debian/nfs-common/usr/share/bug/nfs-utils/control
+	install -m 0644 debian/nfs-utils.bugpresubj debian/nfs-common/usr/share/bug/nfs-utils/presubj
+	install -m 0755 debian/nfs-kernel-server.bugscript debian/nfs-kernel-server/usr/share/bug/nfs-kernel-server/script
 	dh_link
 	dh_installchangelogs ChangeLog
 	dh_lintian

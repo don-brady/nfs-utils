@@ -1,3 +1,29 @@
+nfs-utils (1:1.2.3-1) unstable; urgency=low
+
+  * New upstream release
+    - 7-remove-duplicate-exports-paragraphs : removed
+    - 12-svcgssd-document-n-option: updated
+    - 14-allow-address-without-name : removed
+    - 15-mountd-fix-path-comparison-for-v4-crossmnt : removed
+    - 16-mount.nfs.man-nfs.man-update-distinction-between-fstypes:
+      part about nfs.man removed and 
+      renamed to 16-mount.nfs.man-update-distinction-between-fstypes
+    - mountd: fix --manage-gids hang due to int/uint bug (0f05c8a)
+      (Closes: #528939,585085)
+    - mount.nfs: Don't do anything fancy if this is a remount (f11547f)
+      (Closes: #612933)
+    - mount: Mount should retry unreachable hosts (5a355f4)
+      (Closes: #560388)
+    - Try to use kernel function to determine supported Kerberos 
+      enctypes (258f10f) (Closes: #474037)
+    - nfs-common: Add Recommends python for mountstats and nfsiostat
+  * Make sure everything is shipped (inspired by #594933) 
+  * nfs-common.init: Enable idmapd by default (Closes: #610363)
+  * Install bug scripts to ease debuging
+  * Build depend on libtirpc-dev and enable IPv6 (Closes: #441361)
+
+ -- Luk Claes <luk@debian.org>  Sun, 27 Mar 2011 18:54:45 +0200
+
 nfs-utils (1:1.2.2-5) unstable; urgency=low
 
   [ Ben Hutchings ]
