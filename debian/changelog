@@ -1,3 +1,24 @@
+nfs-utils (1:1.2.3-3) unstable; urgency=medium
+
+  [ Luk Claes ]
+  * Remove build dependency on librpcsecgss-dev as it's superseded by
+    libtirpc-dev
+  * Remove very old versioned dependencies on netbase and libblkid1
+  * Exclude state files from dh_md5sum
+  * Use rpcinfo instead of /dev/tcp redirection
+  * Fix CVE-2011-1749: Anticipate RLIMIT_FSIZE (Closes: #629420)
+  * start-statd: Use bash (Closes: #621027)
+  * Add build-arch and build-indep makefile targets to debian/rules
+  * Add override for setuid mount.nfs
+
+  [ Ben Hutchings ]
+  * statd.man, nfsiostat.man: Fix syntax errors, thanks to Simon Paillard
+    (Closes: #624261)
+  * exports.man: Fix syntax errors
+  * nfs.man: Fix syntax errors and improve tabulation
+
+ -- Luk Claes <luk@debian.org>  Sat, 18 Jun 2011 10:48:28 +0200
+
 nfs-utils (1:1.2.3-2) unstable; urgency=low
 
   * Depend on rpcbind unconditionally, as libtirpc does not support the
