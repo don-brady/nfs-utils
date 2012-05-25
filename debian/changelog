@@ -1,3 +1,16 @@
+nfs-utils (1:1.2.6-1) unstable; urgency=low
+
+  * New upstream version
+    - Remove 18-dont-use-PAGE_SIZE.patch: merged upstream.
+    - Update other patches.
+    - Install osd_login (part of the autologin feature).
+      - Add open-iscsi and watchdog to Recommends.
+  * Check for blank exports file (Closes: #673798).
+  * Add 18-osd_login-sbindir.patch to avoid FTBFS
+  * Add 19-iscsiadm-path.patch so osd_login works
+
+ -- Luk Claes <luk@debian.org>  Fri, 25 May 2012 20:41:58 +0200
+
 nfs-utils (1:1.2.5-4) unstable; urgency=low
 
   * Add libmount-dev to Build-Depends and explicitly enable it.
