@@ -1,3 +1,22 @@
+nfs-utils (1:1.2.8-1) unstable; urgency=low
+
+  * New upstream version (Closes: #707258).
+    - Only amend extra-options on a successful vers=4 mount
+      (Closes: #690181).
+    - Use default domain (Closes: #657188).
+    - Fix is-subdirectory to understand '/' (Closes: #685306).
+    - Drop 18-osd_login-sbindir: incorporated upstream.
+    - Avoid DNS reverse lookups on server names (Closes: #707401).
+    - auth_unix_ip should downcall on error (Closes: #682709).
+    - Refresh 11-532048-reduce-verbosity.
+  * Use rpcbind's rpcinfo everywhere (Closes: #707589).
+  * Add nfsdcltrack to nfs-kernel-server.
+  * Add libsqlite3-dev build dependency for nfsdcltrack.
+  * Do not try to install dropped ChangeLog.
+  * Adjust version of replaces due to manpage move.
+
+ -- Luk Claes <luk@zomers.be>  Fri, 10 May 2013 14:27:47 +0200
+
 nfs-utils (1:1.2.6-3) unstable; urgency=low
 
   * Iterate through exports.d to look for expors (Closes: #676604).
