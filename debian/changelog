@@ -1,3 +1,19 @@
+nfs-utils (1:1.2.8-5) unstable; urgency=medium
+
+  [ Ben Hutchings ]
+  * Remove Luk Claes from uploaders (Closes: #723602)
+
+  [ Steve Langasek ]
+  * Migrate the rpc_pipefs mount out of /var/lib to /run, to better
+    support /var on NFS.
+  * Don't start the nfs-common init script from the nfs-kernel-server
+    maintainer script, this is entirely redundant.
+  * debian/patches/21-no-more-var-run.patch: PID files should be in
+    /run, not /var/run.
+    Closes LP: #1157171.
+
+ -- Steve Langasek <vorlon@debian.org>  Mon, 13 Jan 2014 22:07:53 +0000
+
 nfs-utils (1:1.2.8-4) unstable; urgency=low
 
   * The configure option name is --with-gssglue, not --with-libgssglue.
