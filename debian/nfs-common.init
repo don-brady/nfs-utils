@@ -4,7 +4,7 @@
 # Provides:          nfs-common
 # Required-Start:    $portmap $time
 # Required-Stop:     $time
-# Default-Start:     2 3 4 5 S
+# Default-Start:     S
 # Default-Stop:      0 1 6
 # Short-Description: NFS support files common to client and server
 # Description:       NFS is a popular protocol for file sharing across
@@ -47,12 +47,16 @@ if [ -f /etc/fstab ]; then
 		continue
 		;;
 	esac
-        case "$OPTS" in
-
-            sec=krb5|*,sec=krb5|sec=krb5,*|*,sec=krb5i,*|sec=krb5i|*,sec=krb5i|sec=krb5i,*|*,sec=krb5i,*|sec=krb5p|*,sec=krb5p|sec=krb5p,*|*,sec=krb5p,*)
-    	    AUTO_NEED_GSSD=yes
-            ;;
-        esac
+	OLDIFS="$IFS"
+	IFS=","
+	for OPT in $OPTS; do
+	    case "$OPT" in
+		sec=krb5|sec=krb5i|sec=krb5p)
+		    AUTO_NEED_GSSD=yes
+		;;
+	    esac
+	done
+	IFS="$OLDIFS"
     done
 
     exec 0<&9 9<&-

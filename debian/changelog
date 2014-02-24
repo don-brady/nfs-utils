@@ -1,3 +1,29 @@
+nfs-utils (1:1.2.8-6) unstable; urgency=medium
+
+  * Fix the sec=krb5* handling in debian/nfs-common.init to properly match
+    all cases.  Closes: #715478.
+  * Move the rpc.svcgssd(8) symlink to nfs-common along with the rest of it,
+    and add the Replaces: on old versions of nfs-kernel-server to support
+    upgrades properly.  Closes: #731479.
+  * Only start nfs-common in runlevel S; it doesn't need to be started
+    more than once (and startpar won't actually run it more than once,
+    anyway).  Closes: #510528.
+  * Fix obsolete invocations of update-rc.d by switching nfs-common to use
+    dh_installinit.  Closes: #736059.
+  * Tweak nfs-common preinst to not remove nfs state files except on package
+    removal (i.e., these should not be removed when the package is
+    deconfigured temporarily).
+  * debian/nfs-kernel-server.init: don't try to check for nfsv3 configuration
+    in nfsd and pass --no-nfs-version 3 to mountd if absent; the check is
+    buggy and impossible to make reliable, and there's no reason to single
+    out NFSv3 here (and the original rationale for this behavior is lost).
+    Closes LP: #897644, LP: #1284210.
+  * Provide quoted entries by default in debian/nfs-kernel-server.default,
+    consistent with other default files, so that users who edit the file to
+    add multiple options don't accidentally cause shell syntax bugs.
+
+ -- Steve Langasek <vorlon@debian.org>  Mon, 24 Feb 2014 18:11:17 +0000
+
 nfs-utils (1:1.2.8-5) unstable; urgency=medium
 
   [ Ben Hutchings ]
