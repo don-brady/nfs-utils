@@ -8,3 +8,5 @@
 27-systemd-enable-with-systemctl-statd.patch
 unbreak-blkmapd-rpc_pipefs-run.patch
 unbreak-gssd-rpc_pipefs-run.patch
+28-nfs-utils_env-location.patch
+29-start-statd-fd-9.patch

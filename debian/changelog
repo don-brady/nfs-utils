@@ -1,3 +1,15 @@
+nfs-utils (1:1.3.4-2) unstable; urgency=medium
+
+  [ Daniel Pocock ]
+  * Ignore failure to (re)start service during postinst. (Closes: #848115)
+  * Correct location of nfs-utils_env.sh in service file. (Closes: #848145)
+  * Use FD 9 in start-statd. (Closes: #848277)
+
+  [ Helmut Grohne ]
+  * Fix FTCBFS: Let dh_auto_configure provide cross flags (Closes: #836542)
+
+ -- Daniel Pocock <daniel@pocock.pro>  Sat, 17 Dec 2016 11:49:21 +0100
+
 nfs-utils (1:1.3.4-1) unstable; urgency=medium
 
   [ Daniel Pocock ]
