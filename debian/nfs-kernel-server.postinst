@@ -19,11 +19,5 @@ case "$1" in
 	if dpkg --compare-versions "$2" lt 1:2.1.1; then
 		    rm -f /var/lib/nfs/xtab
 	fi
-
-	update-rc.d nfs-kernel-server defaults 20 80 >/dev/null
     ;;
 esac
-
-act="restart"
-[ "$1:$2" = "configure:" ] && act="start"
-invoke-rc.d nfs-kernel-server $act || echo "Failed to ${act} nfs-kernel-server, ignoring."
