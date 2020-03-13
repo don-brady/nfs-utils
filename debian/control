@@ -2,12 +2,12 @@ Source: nfs-utils
 Priority: optional
 Section: net
 Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
-Uploaders: Anibal Monsalve Salazar <anibal@debian.org>, Ben Hutchings <ben@decadent.org.uk>, Steve Langasek <vorlon@debian.org>, Daniel Pocock <pocock@debian.org>
+Uploaders: Ben Hutchings <ben@decadent.org.uk>, Steve Langasek <vorlon@debian.org>, Salvatore Bonaccorso <carnil@debian.org>
 Build-Depends: debhelper (>= 9.20160709), libwrap0-dev, libevent-dev, libnfsidmap-dev (>= 0.24), libkrb5-dev, libblkid-dev, libkeyutils-dev, pkg-config, libldap2-dev, libcap-dev, libtirpc-dev (>= 1.0.2), libdevmapper-dev, dh-autoreconf, libmount-dev, libsqlite3-dev
 Standards-Version: 4.2.1
-Homepage: http://linux-nfs.org/
-Vcs-Git: https://salsa.debian.org/debian/nfs-utils.git
-Vcs-Browser: https://salsa.debian.org/debian/nfs-utils
+Homepage: https://linux-nfs.org/
+Vcs-Git: https://salsa.debian.org/kernel-team/nfs-utils.git
+Vcs-Browser: https://salsa.debian.org/kernel-team/nfs-utils
 
 Package: nfs-kernel-server
 Architecture: any
@@ -27,7 +27,6 @@ Description: support for NFS kernel server
  This package contains the user-space support needed to use the
  NFS kernel server. Most administrators wishing to set up an NFS server
  would want to install this package.
-Homepage: http://nfs.sourceforge.net/
 
 Package: nfs-common
 Architecture: any
@@ -42,4 +41,3 @@ Description: NFS support files common to client and server
  Use this package on any machine that uses NFS, either as client or
  server.  Programs included: lockd, statd, showmount, nfsstat, gssd,
  idmapd and mount.nfs.
-Homepage: http://nfs.sourceforge.net/
