@@ -18,3 +18,6 @@ fix-glibc2.28-ftbfs.patch
 nfsiostat-replace-list-reserved-word.patch
 statd-take-user-id-from-var-lib-nfs-sm.patch
 Allow-compilation-to-succeed-with-fno-common.patch
+mountstats-Remove-a-shebang.patch
+Convert-remaining-python-scripts-to-python3.patch
+Removed-a-resource-leak-from-mountd-fsloc.c.patch
