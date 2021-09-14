@@ -1,3 +1,27 @@
+nfs-utils (1:2.5.4-1~exp5) experimental; urgency=medium
+
+  * Handle fade out-of /var/lib/nfs/xtab file
+  * debian/rules: configure: remove explicit options which are enabled by
+    default
+  * debian/rules: configure to install systemd unit files
+  * nfs-common: Introduce /etc/nfs.conf handling
+  * nfs-common: Move handling of /run/rpc_pipefs to /etc/nfs.conf
+  * Remove use of systemd nfs-config.service service
+  * nfs-common: Install rpc_pipefs.target and rpc-pipefs-generator
+  * nfs-kernel-server: Install nfsdcld service
+  * Drop "Let sysadmins enable/disable statd services"
+  * nfs-common: Install systemd unit files from debian/tmp/
+  * nfs-kernel-server: Install systemd unit files from debian/tmp/
+  * nfs-kernel-server: Install nfs-server-generator into system-generators
+  * Allow to install systemd unit generators in /lib/systemd
+  * Refresh "systemd: Fix non-default statedir paths."
+  * Move nfsdcld, nfsdclddb and nfsdclnts to nfs-kernel-server package
+  * Set pluginpath for libnfsidmap to
+    /usr/lib/$(DEB_HOST_MULTIARCH)/libnfsidmap
+  * nfs-kernel-server: Add Recommends on python3-yaml for the nfsdclnts tool
+
+ -- Salvatore Bonaccorso <carnil@debian.org>  Tue, 14 Sep 2021 09:48:58 +0200
+
 nfs-utils (1:2.5.4-1~exp4) experimental; urgency=medium
 
   * Fix upgrade failure
