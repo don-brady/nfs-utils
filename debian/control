@@ -60,7 +60,7 @@ Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: libnfsidmap2, libnfsidmap-regex
-Provides: libnfsidmap2, libnfsidmap-regex
+Provides: libnfsidmap-regex
 Breaks: libnfsidmap2 (<< 0.25-7~), libnfsidmap-regex
 Replaces: libnfsidmap2 (<< 0.25-7~), libnfsidmap-regex
 Description: NFS idmapping library
