@@ -1,0 +1,22 @@
+nfs-utils (1:2.6.1-1~exp1ubuntu1) jammy; urgency=medium
+
+    The configuration of the NFS related services has been moved to /etc/nfs.conf.
+    This package still installs /etc/default/nfs-common and
+    /etc/default/nfs-kernel-server, but they are ignored. A future version of this
+    package will handle the migration somehow[1].
+    .
+    Due to the above, the old nfs-config.service unit file has been deprecated and
+    removed.
+    .
+    All NFS related services are enabled by default. This means that depending on
+    the NFS version that you intend to use, some services might be superfluous.
+    For example, if you never intend to serve NFSv3, then you can safely disable
+    the rpc-statd.service unit. Note that some NFSv4 service units will start
+    only if Kerberos is setup.
+    .
+    libnfsidmapMAJOR and libnfsidmap-dev are now built from the nfs-utils source
+    package. This change deprecates the source package src:libnfsidmap.
+    .
+    1. https://bugs.launchpad.net/bugs/1960829
+
+ -- Andreas Hasenack <andreas@canonical.com>  Tue, 25 Jan 2022 16:30:49 -0300
