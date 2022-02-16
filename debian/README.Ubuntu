@@ -1,0 +1,8 @@
+nfs-utils upstream pulled[1] in the regex plugin from libnfsidmap-regex[2], but
+that plugin is already packaged in Ubuntu Universe[3].  For now, to use the
+regex plugin, please continue to install libnfsidmap-regex from Ubuntu
+Universe.
+
+1. http://git.linux-nfs.org/?p=steved/nfs-utils.git;a=commit;h=940caffdfb9953a2ccfecec81664e4a179753461
+2. https://github.com/isginf/libnfsidmap-regex
+3. https://launchpad.net/ubuntu/+source/libnfsidmap-regex
