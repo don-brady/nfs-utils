@@ -32,12 +32,12 @@ nfs-utils (1:2.6.1-1ubuntu1) jammy; urgency=medium
     - d/README.Ubuntu: update
     - d/nfs-*.bug-script: update to also include /etc/nfs.conf and
       /etc/nfs.conf.d/*.conf
-    - New apport hook (LP #1961058):
+    - New apport hook (LP: #1961058):
       + d/source.apport: apport hook for nfs-utils
       + d/control: build-depend dh-apport
       + d/rules: build with apport, and install the hook in the
         nfs-common package which is installed on both client and servers
-    - Add more DEP8 tests (LP #1960828):
+    - Add more DEP8 tests (LP: #1960828):
       + d/t/{control,kerberos-mount,util}: test NFSv4 krb5p mounts
       + d/t/{control, v3-moun}t: specific NFSv3 mount test
 
